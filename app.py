@@ -528,3 +528,5 @@ def execute_function_call(function_name, function_args):
         function = AVAILABLE_FUNCTIONS[function_name]
         result = function(**function_args)
         return result
+    except Exception as e:
+        return execution_log, f"Error: {str(e)}"
