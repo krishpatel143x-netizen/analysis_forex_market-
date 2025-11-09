@@ -52,10 +52,11 @@ st.set_page_config(
 # Initialize Groq client
 @st.cache_resource
 def get_groq_client():
-    """Initialize Groq client with API key #from secrets"""
+    """Initialize Groq client safely"""
     try:
         api_key = st.secrets["GROQ_API_KEY"]
-        return Groq(api_key=api_key)
+        client = Groq(api_key=api_key)
+        return client
     except Exception as e:
         st.error(f"Error loading Groq API key: {e}")
         st.info("Please add GROQ_API_KEY to .streamlit/secrets.toml")
