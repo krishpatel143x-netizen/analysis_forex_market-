@@ -50,7 +50,7 @@ st.set_page_config(
 )
 
 # Initialize Groq client
-   "GROQ_API_KEY" in os.environ:
+   GROQ_API_KEY in os.environ
 
 # System prompt for Groq LLM - COMPLETE SMC ANALYST
 SYSTEM_PROMPT = """You are an elite forex analyst and expert in Smart Money Concepts (SMC) with access to a comprehensive suite of analysis tools. 
