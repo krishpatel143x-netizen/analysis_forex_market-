@@ -50,17 +50,7 @@ st.set_page_config(
 )
 
 # Initialize Groq client
-@st.cache_resource
-def get_groq_client():
-    """Initialize Groq client safely"""
-    try:
-        api_key = st.secrets["GROQ_API_KEY"]
-        client = Groq(api_key=api_key)
-        return client
-    except Exception as e:
-        st.error(f"Error loading Groq API key: {e}")
-        st.info("Please add GROQ_API_KEY to .streamlit/secrets.toml")
-        return None
+   "GROQ_API_KEY" in os.environ:
 
 # System prompt for Groq LLM - COMPLETE SMC ANALYST
 SYSTEM_PROMPT = """You are an elite forex analyst and expert in Smart Money Concepts (SMC) with access to a comprehensive suite of analysis tools. 
