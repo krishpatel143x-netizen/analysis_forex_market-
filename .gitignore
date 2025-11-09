@@ -2,7 +2,7 @@
 # ==========================
 
 # CRITICAL: Never commit API keys!
-.streamlit/secrets.toml
+streamlit/secrets.toml
 secrets.toml
 *.env
 .env
