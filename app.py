@@ -15,8 +15,32 @@ using Smart Money Concepts (SMC) methodology.
 import streamlit as st
 import json
 from groq import Groq
+
+# Import mock data function
 from utils.polygon_mock import get_forex_data
-from utils.smc_functions import detect_bos, detect_choch, identify_order_blocks
+
+# Import all SMC functions
+from utils.smc_functions import (
+    # Market Structure
+    detect_bos, detect_choch, detect_market_structure_break,
+    # Liquidity
+    detect_liquidity_sweep, identify_liquidity_pools, detect_liquidity_void,
+    # Order Blocks & FVG
+    identify_order_blocks, identify_fair_value_gaps, identify_breaker_blocks,
+    # Premium/Discount
+    calculate_premium_discount_zones,
+    # Imbalances
+    detect_imbalances, detect_inefficiencies,
+    # Volume & Flow
+    analyze_volume_profile, detect_smart_money_divergence, analyze_order_flow,
+    # Multi-Timeframe
+    analyze_higher_timeframe_structure, identify_confluences,
+    # Session & Time
+    analyze_session_characteristics, detect_news_impact_zones,
+    # Advanced
+    identify_manipulation_patterns, calculate_institutional_levels,
+    detect_wyckoff_phases, identify_turtle_soup_setups
+)
 
 # Page configuration
 st.set_page_config(
@@ -505,28 +529,4 @@ FUNCTION_SCHEMAS = [
     },
     {
         "type": "function",
-        "function": {
-            "name": "identify_turtle_soup_setups",
-            "description": "Identifies Turtle Soup patterns - false breakout reversals when stops are hunted.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "data": {"type": "object", "description": "Market data from get_forex_data()"}
-                },
-                "required": ["data"]
-            }
-        }
-    }
-]
-
-def execute_function_call(function_name, function_args):
-    """Execute a function call and return the result"""
-    if function_name not in AVAILABLE_FUNCTIONS:
-        return {"error": f"Function {function_name} not found"}
-    
-    try:
-        function = AVAILABLE_FUNCTIONS[function_name]
-        result = function(**function_args)
-        return result
-    except Exception as e:
-        return execution_log, f"Error: {str(e)}"
+  
