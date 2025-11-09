@@ -529,4 +529,276 @@ FUNCTION_SCHEMAS = [
     },
     {
         "type": "function",
-  
+        "function": {
+            "name": "identify_turtle_soup_setups",
+            "description": "Identifies Turtle Soup patterns - false breakout reversals when stops are hunted.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "data": {"type": "object", "description": "Market data from get_forex_data()"}
+                },
+                "required": ["data"]
+            }
+        }
+    }
+]
+
+def execute_function_call(function_name, function_args):
+    """Execute a function call and return the result"""
+    if function_name not in AVAILABLE_FUNCTIONS:
+        return {"error": f"Function {function_name} not found"}
+    
+    try:
+        function = AVAILABLE_FUNCTIONS[function_name]
+        result = function(**function_args)
+        return result
+    except Exception as e:
+        return {"error": str(e)}
+
+def run_analysis(query, model, client):
+    """Run the complete analysis using Groq function calling"""
+    
+    # Initialize conversation
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": query}
+    ]
+    
+    execution_log = []
+    max_iterations = 10  # Prevent infinite loops
+    iteration = 0
+    
+    while iteration < max_iterations:
+        iteration += 1
+        
+        try:
+            # Call Groq API
+            response = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                tools=FUNCTION_SCHEMAS,
+                tool_choice="auto",
+                temperature=0.7,
+                max_tokens=4000
+            )
+            
+            response_message = response.choices[0].message
+            
+            # Check if we're done (no tool calls)
+            if not response_message.tool_calls:
+                # Final response from LLM
+                execution_log.append({
+                    "type": "final_response",
+                    "content": response_message.content
+                })
+                return execution_log, response_message.content
+            
+            # Process tool calls
+            messages.append(response_message)
+            
+            for tool_call in response_message.tool_calls:
+                function_name = tool_call.function.name
+                function_args = json.loads(tool_call.function.arguments)
+                
+                # Log the function call
+                execution_log.append({
+                    "type": "function_call",
+                    "function": function_name,
+                    "arguments": function_args
+                })
+                
+                # Execute the function
+                function_result = execute_function_call(function_name, function_args)
+                
+                # Log the result
+                execution_log.append({
+                    "type": "function_result",
+                    "function": function_name,
+                    "result": function_result
+                })
+                
+                # Add result to messages
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "name": function_name,
+                    "content": json.dumps(function_result)
+                })
+        
+        except Exception as e:
+            error_msg = f"Error in iteration {iteration}: {str(e)}"
+            execution_log.append({
+                "type": "error",
+                "message": error_msg
+            })
+            return execution_log, f"Analysis error: {error_msg}"
+    
+    # If we hit max iterations
+    return execution_log, "Analysis exceeded maximum iterations. Please try again with a simpler query."
+
+# Main UI
+st.title("📈 Forex Market Analyzer")
+st.markdown("**Powered by Groq LLM + Smart Money Concepts**")
+
+# Sidebar with examples and info
+with st.sidebar:
+    st.header("📚 Example Queries")
+    
+    st.subheader("🎯 Basic Analysis")
+    basic_queries = [
+        "Analyze EURUSD on 1H timeframe",
+        "What's the trend on GBPUSD 4H?",
+        "Give me a trade setup for USDJPY 15m"
+    ]
+    for example in basic_queries:
+        if st.button(example, key=example):
+            st.session_state.query = example
+    
+    st.subheader("🔍 Specific SMC Analysis")
+    smc_queries = [
+        "Find order blocks on AUDUSD 1H",
+        "Detect liquidity sweeps on EURUSD 4H",
+        "Show me Fair Value Gaps on GBPJPY 1H",
+        "Is there a CHoCH on USDJPY 30m?",
+        "Find confluences on EURUSD 1H"
+    ]
+    for example in smc_queries:
+        if st.button(example, key=example):
+            st.session_state.query = example
+    
+    st.subheader("⚡ Advanced Analysis")
+    advanced_queries = [
+        "Comprehensive SMC analysis EURUSD 1H",
+        "Find manipulation patterns GBPUSD 15m",
+        "Wyckoff phase analysis USDJPY 4H",
+        "Multi-timeframe analysis AUDUSD 1H",
+        "Premium/discount zones EURJPY 1H"
+    ]
+    for example in advanced_queries:
+        if st.button(example, key=example):
+            st.session_state.query = example
+    
+    st.divider()
+    
+    st.header("⚙️ Setup")
+    st.markdown("""
+    **Get Free Groq API Key:**
+    1. Visit [console.groq.com](https://console.groq.com)
+    2. Create account (free)
+    3. Generate API key
+    4. Add to `.streamlit/secrets.toml`:
+    ```toml
+    GROQ_API_KEY = "your_key_here"
+    ```
+    """)
+    
+    st.divider()
+    
+    st.header("🎯 SMC Concepts Available")
+    with st.expander("Market Structure", expanded=False):
+        st.markdown("""
+        - **BOS**: Break of Structure
+        - **CHoCH**: Change of Character
+        - **MSB**: Market Structure Break
+        """)
+    
+    with st.expander("Liquidity", expanded=False):
+        st.markdown("""
+        - **Liquidity Sweeps**: Stop hunts
+        - **Liquidity Pools**: Stop clusters
+        - **Liquidity Voids**: Price gaps
+        """)
+    
+    with st.expander("Zones & Blocks", expanded=False):
+        st.markdown("""
+        - **Order Blocks**: Institutional zones
+        - **FVG**: Fair Value Gaps
+        - **Breaker Blocks**: Flipped polarity
+        - **Premium/Discount**: Value zones
+        """)
+    
+    with st.expander("Advanced", expanded=False):
+        st.markdown("""
+        - **Wyckoff Phases**: Accumulation/Distribution
+        - **Manipulation**: Traps & Stop Hunts
+        - **Confluences**: Multiple factors
+        - **Institutional Levels**: Round numbers
+        """)
+    
+    st.divider()
+    
+    st.caption(f"📊 Total SMC Functions: **24**")
+    st.caption("🤖 Powered by Groq LLM")
+
+# Initialize Groq client
+client = get_groq_client()
+
+if client is None:
+    st.stop()
+
+# Main input area
+col1, col2 = st.columns([3, 1])
+
+with col1:
+    query = st.text_area(
+        "Enter your analysis query:",
+        value=st.session_state.get('query', ''),
+        height=100,
+        placeholder="Example: Analyze EURUSD on 1H timeframe"
+    )
+
+with col2:
+    model = st.selectbox(
+        "Select Model:",
+        [
+            "llama-3.3-70b-versatile",
+            "llama-3.1-70b-versatile",
+            "mixtral-8x7b-32768",
+            "gemma2-9b-it"
+        ]
+    )
+    
+    analyze_button = st.button("🔍 Analyze", type="primary", use_container_width=True)
+
+# Run analysis
+if analyze_button and query:
+    with st.spinner("🤖 AI Analyst is working..."):
+        try:
+            execution_log, final_analysis = run_analysis(query, model, client)
+            
+            # Display results
+            st.success("✅ Analysis Complete!")
+            
+            # Execution trace
+            with st.expander("🔍 Execution Trace (Click to expand)", expanded=False):
+                for i, log_entry in enumerate(execution_log):
+                    if log_entry["type"] == "function_call":
+                        st.markdown(f"**Step {i+1}: Calling `{log_entry['function']}`**")
+                        st.json(log_entry["arguments"])
+                    
+                    elif log_entry["type"] == "function_result":
+                        st.markdown(f"**Result from `{log_entry['function']}`:**")
+                        st.json(log_entry["result"])
+                        st.divider()
+                    
+                    elif log_entry["type"] == "error":
+                        st.error(f"❌ {log_entry['message']}")
+            
+            # Final analysis
+            st.markdown("### 📊 Final Analysis")
+            st.markdown(final_analysis)
+            
+        except Exception as e:
+            st.error(f"Error during analysis: {str(e)}")
+            st.info("Please check your API key and try again.")
+
+elif analyze_button:
+    st.warning("Please enter a query first!")
+
+# Footer
+st.divider()
+st.markdown("""
+<div style='text-align: center; color: gray; font-size: 0.9em;'>
+Built with Streamlit + Groq | Using Mock Data | Ready for Polygon.io Integration
+</div>
+""", unsafe_allow_html=True)
