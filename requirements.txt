@@ -1,0 +1,25 @@
+# Forex Market Analyzer - Requirements
+# =====================================
+
+# Core Framework
+streamlit==1.31.1
+
+# Groq AI API
+groq==0.4.2
+
+# Standard Libraries (included with Python but listed for clarity)
+# datetime - built-in
+# json - built-in
+# random - built-in
+
+# Optional: For future real API integration
+# polygon-api-client==1.12.0  # Uncomment when ready to use real Polygon.io data
+# python-dotenv==1.0.0        # For environment variable management
+# pandas==2.1.4               # For advanced data manipulation
+# numpy==1.26.3               # For numerical computations
+
+# Installation Instructions:
+# 1. Create virtual environment: python -m venv venv
+# 2. Activate: source venv/bin/activate (Linux/Mac) or venv\Scripts\activate (Windows)
+# 3. Install: pip install -r requirements.txt
+# 4. Run app: streamlit run app.py
