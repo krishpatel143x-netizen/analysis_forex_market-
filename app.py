@@ -40,7 +40,7 @@ from utils.smc_functions import (
     # Advanced
     identify_manipulation_patterns, calculate_institutional_levels,
     detect_wyckoff_phases, identify_turtle_soup_setups
-)
+    )
 
 # Page configuration
 st.set_page_config(
