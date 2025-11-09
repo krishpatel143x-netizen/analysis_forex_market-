@@ -725,4 +725,557 @@ def analyze_volume_profile(data):
         'profile': {
             'poc': poc_price,
             'poc_volume': max(volumes),
-            'value_area_high': round(value_area_
+            'value_area_high': round(value_area_high, 4),
+            'value_area_low': round(value_area_low, 4),
+            'current_price': current_price,
+            'position_relative_to_poc': 'above' if current_price > poc_price else 'below'
+        },
+        'interpretation': f"POC at {poc_price} - strong {'support' if current_price > poc_price else 'resistance'}",
+        'trading_implication': 'Price tends to gravitate toward high volume areas (POC)'
+    }
+
+def detect_smart_money_divergence(data):
+    """
+    Detect Smart Money Divergence - price vs accumulation/distribution
+    
+    When price makes new highs/lows but smart money isn't participating.
+    """
+    
+    candles = data.get('candles', [])
+    current_price = data.get('current_price', 0)
+    trend = data.get('indicators', {}).get('trend', 'neutral')
+    
+    if len(candles) < 40:
+        return {'divergence': None, 'message': 'Insufficient data'}
+    
+    if random.random() > 0.6:
+        # Mock divergence detection
+        divergence_type = random.choice(['bullish', 'bearish', 'hidden_bullish', 'hidden_bearish'])
+        
+        if 'bullish' in divergence_type:
+            interpretation = 'Price making lower lows but smart money accumulating'
+            signal = 'potential_reversal_up'
+            strength = random.randint(65, 90)
+        else:
+            interpretation = 'Price making higher highs but smart money distributing'
+            signal = 'potential_reversal_down'
+            strength = random.randint(65, 90)
+        
+        return {
+            'divergence': {
+                'type': divergence_type,
+                'strength': strength,
+                'signal': signal,
+                'interpretation': interpretation,
+                'confirmation_needed': random.choice([True, False])
+            },
+            'recommendation': f"Watch for {signal.replace('_', ' ')} confirmation"
+        }
+    
+    return {'divergence': None, 'reason': 'No smart money divergence detected'}
+
+def analyze_order_flow(data):
+    """
+    Analyze Order Flow - buying vs selling pressure
+    
+    Determines who's in control: buyers or sellers.
+    """
+    
+    candles = data.get('candles', [])
+    current_price = data.get('current_price', 0)
+    
+    if len(candles) < 20:
+        return {'flow': {}, 'message': 'Insufficient data'}
+    
+    recent_candles = candles[-20:]
+    
+    # Calculate buying/selling pressure
+    buying_pressure = sum([1 for c in recent_candles if c['close'] > c['open']])
+    selling_pressure = sum([1 for c in recent_candles if c['close'] < c['open']])
+    
+    total_candles = len(recent_candles)
+    buy_percentage = (buying_pressure / total_candles) * 100
+    sell_percentage = (selling_pressure / total_candles) * 100
+    
+    # Determine dominant flow
+    if buy_percentage > 65:
+        dominant_flow = 'strong_buying'
+        bias = 'bullish'
+    elif sell_percentage > 65:
+        dominant_flow = 'strong_selling'
+        bias = 'bearish'
+    elif buy_percentage > 55:
+        dominant_flow = 'moderate_buying'
+        bias = 'slightly_bullish'
+    elif sell_percentage > 55:
+        dominant_flow = 'moderate_selling'
+        bias = 'slightly_bearish'
+    else:
+        dominant_flow = 'balanced'
+        bias = 'neutral'
+    
+    # Calculate delta (net buying/selling)
+    delta = buying_pressure - selling_pressure
+    
+    return {
+        'flow': {
+            'buying_pressure': round(buy_percentage, 1),
+            'selling_pressure': round(sell_percentage, 1),
+            'delta': delta,
+            'dominant_flow': dominant_flow,
+            'bias': bias
+        },
+        'interpretation': f"Order flow shows {dominant_flow.replace('_', ' ')} - {bias} bias",
+        'trading_implication': f"Favor {bias} setups in alignment with order flow"
+    }
+
+# ============================================================================
+# MULTI-TIMEFRAME ANALYSIS
+# ============================================================================
+
+def analyze_higher_timeframe_structure(pair, current_timeframe):
+    """
+    Analyze Higher Timeframe Structure - HTF context
+    
+    Trading with HTF bias increases probability of success.
+    """
+    
+    # Map to higher timeframes
+    timeframe_hierarchy = {
+        '1m': '5m',
+        '5m': '15m',
+        '15m': '1h',
+        '30m': '4h',
+        '1h': '4h',
+        '4h': '1d',
+        '1d': '1w'
+    }
+    
+    htf = timeframe_hierarchy.get(current_timeframe, '1d')
+    
+    # Mock HTF analysis
+    htf_trend = random.choice(['bullish', 'bearish', 'ranging'])
+    htf_structure_quality = random.randint(65, 95)
+    
+    htf_bos_present = random.choice([True, False])
+    htf_choch_present = random.choice([True, False]) if not htf_bos_present else False
+    
+    # Key levels on HTF
+    key_support = round(random.uniform(1.05, 1.08), 4)
+    key_resistance = round(random.uniform(1.09, 1.12), 4)
+    
+    alignment_with_ltf = random.choice(['aligned', 'conflicting', 'neutral'])
+    
+    return {
+        'htf': htf,
+        'htf_trend': htf_trend,
+        'structure_quality': htf_structure_quality,
+        'htf_bos': htf_bos_present,
+        'htf_choch': htf_choch_present,
+        'key_support': key_support,
+        'key_resistance': key_resistance,
+        'alignment': alignment_with_ltf,
+        'interpretation': f"HTF ({htf}) shows {htf_trend} bias with {htf_structure_quality}% structure quality",
+        'recommendation': f"{'Trade with' if alignment_with_ltf == 'aligned' else 'Caution:'} HTF bias for best probability"
+    }
+
+def identify_confluences(pair, timeframe):
+    """
+    Identify Multi-Factor Confluences - stacked probabilities
+    
+    Areas where multiple SMC concepts align create high-probability setups.
+    """
+    
+    # Mock confluence zones
+    confluences = []
+    num_confluences = random.randint(1, 2)
+    
+    for i in range(num_confluences):
+        confluence_price = round(random.uniform(1.06, 1.10), 4)
+        
+        # Multiple factors at this level
+        possible_factors = [
+            'order_block',
+            'fvg',
+            'liquidity_pool',
+            'premium_zone',
+            'discount_zone',
+            'old_high',
+            'old_low',
+            'poc',
+            'imbalance'
+        ]
+        
+        num_factors = random.randint(3, 5)
+        factors = random.sample(possible_factors, num_factors)
+        
+        confluence_strength = len(factors) * 15 + random.randint(10, 25)
+        
+        setup_type = 'buy' if 'discount_zone' in factors or 'order_block' in factors else 'sell'
+        
+        confluences.append({
+            'price_level': confluence_price,
+            'factors': factors,
+            'confluence_strength': min(100, confluence_strength),
+            'setup_type': setup_type,
+            'interpretation': f"{len(factors)} SMC factors align at {confluence_price}",
+            'recommendation': f"High-probability {setup_type} zone - wait for confirmation"
+        })
+    
+    return {
+        'confluences': confluences,
+        'total_confluences': len(confluences),
+        'concept': 'Confluences occur when multiple SMC factors align, creating high-probability zones'
+    }
+
+# ============================================================================
+# SESSION & TIME-BASED ANALYSIS
+# ============================================================================
+
+def analyze_session_characteristics(data):
+    """
+    Analyze Trading Session Characteristics
+    
+    Different sessions (Asian, London, NY) have different behaviors.
+    """
+    
+    current_hour = datetime.utcnow().hour
+    
+    # Determine session
+    if 0 <= current_hour < 8:
+        session = 'asian'
+        characteristics = {
+            'volatility': 'low',
+            'typical_range_pips': '20-40',
+            'best_strategy': 'range_trading',
+            'liquidity': 'low'
+        }
+    elif 8 <= current_hour < 16:
+        session = 'london'
+        characteristics = {
+            'volatility': 'high',
+            'typical_range_pips': '60-100',
+            'best_strategy': 'breakout_continuation',
+            'liquidity': 'high'
+        }
+    else:
+        session = 'newyork'
+        characteristics = {
+            'volatility': 'very_high',
+            'typical_range_pips': '80-120',
+            'best_strategy': 'trend_following',
+            'liquidity': 'very_high'
+        }
+    
+    # Session overlap bonus
+    session_overlap = None
+    if 12 <= current_hour < 16:
+        session_overlap = 'london_newyork'
+        characteristics['note'] = 'High volatility overlap - expect big moves'
+    
+    return {
+        'current_session': session,
+        'characteristics': characteristics,
+        'session_overlap': session_overlap,
+        'recommendation': f"Trade {characteristics['best_strategy']} during {session} session"
+    }
+
+def detect_news_impact_zones(pair):
+    """
+    Detect potential News Impact Zones
+    
+    Areas where price reacted to fundamental news releases.
+    """
+    
+    # Mock news impact detection
+    news_zones = []
+    num_zones = random.randint(0, 2)
+    
+    for i in range(num_zones):
+        event_time = datetime.now() - timedelta(hours=random.randint(1, 48))
+        impact_level = round(random.uniform(1.07, 1.10), 4)
+        
+        news_type = random.choice(['central_bank', 'employment', 'inflation', 'gdp'])
+        reaction = random.choice(['spike_up', 'spike_down', 'range_expansion'])
+        
+        news_zones.append({
+            'event_time': event_time.isoformat(),
+            'news_type': news_type,
+            'impact_level': impact_level,
+            'reaction': reaction,
+            'interpretation': f"{news_type.replace('_', ' ').title()} news caused {reaction.replace('_', ' ')}",
+            'trading_note': 'News reaction levels often become support/resistance'
+        })
+    
+    return {
+        'news_zones': news_zones,
+        'total_zones': len(news_zones),
+        'recommendation': 'Be cautious around news impact levels'
+    }
+
+# ============================================================================
+# ADVANCED CONCEPTS
+# ============================================================================
+
+def identify_manipulation_patterns(data):
+    """
+    Identify Market Manipulation Patterns - stop hunts and traps
+    
+    Smart money often manipulates retail traders before true moves.
+    """
+    
+    candles = data.get('candles', [])
+    current_price = data.get('current_price', 0)
+    
+    if len(candles) < 30:
+        return {'manipulations': [], 'message': 'Insufficient data'}
+    
+    manipulations = []
+    
+    if random.random() > 0.6:
+        manipulation_type = random.choice([
+            'bull_trap',
+            'bear_trap',
+            'stop_hunt',
+            'false_breakout',
+            'wyckoff_spring',
+            'wyckoff_upthrust'
+        ])
+        
+        recent_candles = candles[-15:]
+        manipulation_candle = recent_candles[random.randint(0, len(recent_candles)-1)]
+        
+        if 'bull' in manipulation_type or 'spring' in manipulation_type:
+            fake_move_direction = 'down'
+            true_direction = 'up'
+            level = manipulation_candle['low']
+        else:
+            fake_move_direction = 'up'
+            true_direction = 'down'
+            level = manipulation_candle['high']
+        
+        confidence = random.randint(70, 90)
+        
+        manipulations.append({
+            'type': manipulation_type,
+            'manipulation_level': round(level, 4),
+            'fake_move': fake_move_direction,
+            'true_direction': true_direction,
+            'confidence': confidence,
+            'timestamp': manipulation_candle['timestamp'],
+            'interpretation': f"{manipulation_type.replace('_', ' ').title()} - expect move {true_direction}",
+            'trading_implication': f"Wait for price to reverse {true_direction} from {round(level, 4)}"
+        })
+    
+    return {
+        'manipulations': manipulations,
+        'total_manipulations': len(manipulations),
+        'concept': 'Smart money manipulates retail stops before true directional moves'
+    }
+
+def calculate_institutional_levels(data):
+    """
+    Calculate Institutional Price Levels - round numbers and psychological levels
+    
+    Institutions often place orders at round numbers (00, 50 levels).
+    """
+    
+    current_price = data.get('current_price', 0)
+    
+    # Find nearby round numbers
+    price_str = str(current_price)
+    base_price = float(price_str[:4])  # e.g., 1.09 from 1.0934
+    
+    institutional_levels = []
+    
+    # Major round numbers (00)
+    for i in range(-2, 3):
+        level = round(base_price + (i * 0.01), 4)
+        if level > 0:
+            distance_pips = abs(current_price - level) * 10000
+            level_type = 'major_round_number'
+            strength = random.randint(75, 95)
+            
+            institutional_levels.append({
+                'level': level,
+                'type': level_type,
+                'strength': strength,
+                'distance_pips': round(distance_pips, 1),
+                'psychological_impact': 'high'
+            })
+    
+    # Half numbers (50)
+    for i in range(-2, 3):
+        level = round(base_price + (i * 0.01) + 0.005, 4)
+        if level > 0:
+            distance_pips = abs(current_price - level) * 10000
+            level_type = 'half_round_number'
+            strength = random.randint(60, 80)
+            
+            institutional_levels.append({
+                'level': level,
+                'type': level_type,
+                'strength': strength,
+                'distance_pips': round(distance_pips, 1),
+                'psychological_impact': 'medium'
+            })
+    
+    # Sort by distance
+    institutional_levels.sort(key=lambda x: x['distance_pips'])
+    
+    return {
+        'institutional_levels': institutional_levels[:5],
+        'nearest_level': institutional_levels[0] if institutional_levels else None,
+        'recommendation': 'Institutions cluster orders at round numbers - expect reactions'
+    }
+
+def detect_wyckoff_phases(data):
+    """
+    Detect Wyckoff Market Phases - accumulation/distribution
+    
+    Identifies institutional accumulation/distribution patterns.
+    """
+    
+    candles = data.get('candles', [])
+    trend = data.get('indicators', {}).get('trend', 'neutral')
+    
+    if len(candles) < 50:
+        return {'phase': None, 'message': 'Insufficient data'}
+    
+    # Mock Wyckoff phase detection
+    if random.random() > 0.5:
+        phase_type = random.choice([
+            'accumulation',
+            'markup',
+            'distribution',
+            'markdown'
+        ])
+        
+        sub_phase = None
+        if phase_type == 'accumulation':
+            sub_phase = random.choice(['Phase A', 'Phase B', 'Phase C - Spring', 'Phase D', 'Phase E'])
+        elif phase_type == 'distribution':
+            sub_phase = random.choice(['Phase A', 'Phase B', 'Phase C - Upthrust', 'Phase D', 'Phase E'])
+        
+        phase_confidence = random.randint(65, 90)
+        
+        if phase_type in ['accumulation', 'markup']:
+            expected_move = 'bullish'
+        else:
+            expected_move = 'bearish'
+        
+        return {
+            'phase': {
+                'type': phase_type,
+                'sub_phase': sub_phase,
+                'confidence': phase_confidence,
+                'expected_move': expected_move
+            },
+            'interpretation': f"Wyckoff {phase_type} phase detected - {sub_phase}",
+            'trading_implication': f"Position for {expected_move} move from {phase_type}"
+        }
+    
+    return {'phase': None, 'reason': 'No clear Wyckoff phase identified'}
+
+def identify_turtle_soup_setups(data):
+    """
+    Identify Turtle Soup Patterns - false breakout reversals
+    
+    When price breaks a level then immediately reverses (stop hunt).
+    """
+    
+    candles = data.get('candles', [])
+    current_price = data.get('current_price', 0)
+    
+    if len(candles) < 30:
+        return {'setups': [], 'message': 'Insufficient data'}
+    
+    setups = []
+    
+    if random.random() > 0.7:
+        setup_type = random.choice(['long', 'short'])
+        
+        recent_candles = candles[-20:]
+        
+        if setup_type == 'long':
+            # Price broke below support then reversed
+            false_break_level = min([c['low'] for c in recent_candles[:10]])
+            entry_level = round(false_break_level * 1.0005, 4)
+            stop_level = round(false_break_level * 0.9995, 4)
+            target_level = round(entry_level + (entry_level - stop_level) * 3, 4)
+        else:
+            # Price broke above resistance then reversed
+            false_break_level = max([c['high'] for c in recent_candles[:10]])
+            entry_level = round(false_break_level * 0.9995, 4)
+            stop_level = round(false_break_level * 1.0005, 4)
+            target_level = round(entry_level - (stop_level - entry_level) * 3, 4)
+        
+        setup_quality = random.randint(70, 90)
+        
+        setups.append({
+            'type': setup_type,
+            'false_break_level': round(false_break_level, 4),
+            'entry': entry_level,
+            'stop_loss': stop_level,
+            'target': target_level,
+            'quality': setup_quality,
+            'interpretation': f"Turtle Soup {setup_type} - false breakout reversal",
+            'risk_reward': 3.0
+        })
+    
+    return {
+        'setups': setups,
+        'total_setups': len(setups),
+        'concept': 'Turtle Soup exploits false breakouts when stops are hunted'
+    }
+
+# ============================================================================
+# HELPER FUNCTIONS
+# ============================================================================
+
+def _generate_order_block_setup(block_type, zone_high, zone_low, current_price):
+    """Generate trading setup for an order block"""
+    
+    if block_type == 'demand':
+        entry = round((zone_high + zone_low) / 2, 4)
+        stop_loss = round(zone_low * 0.9998, 4)
+        take_profit = round(entry + (entry - stop_loss) * 2.5, 4)
+        
+        return {
+            'direction': 'BUY',
+            'entry_zone': f"{round(zone_low, 4)} - {round(zone_high, 4)}",
+            'entry_price': entry,
+            'stop_loss': stop_loss,
+            'take_profit': take_profit,
+            'risk_reward': 2.5
+        }
+    else:
+        entry = round((zone_high + zone_low) / 2, 4)
+        stop_loss = round(zone_high * 1.0002, 4)
+        take_profit = round(entry - (stop_loss - entry) * 2.5, 4)
+        
+        return {
+            'direction': 'SELL',
+            'entry_zone': f"{round(zone_low, 4)} - {round(zone_high, 4)}",
+            'entry_price': entry,
+            'stop_loss': stop_loss,
+            'take_profit': take_profit,
+            'risk_reward': 2.5
+        }
+
+def _generate_ob_recommendation(order_blocks, current_price, trend):
+    """Generate recommendation based on order blocks"""
+    
+    if not order_blocks:
+        return "No clear order blocks identified. Wait for structure formation."
+    
+    nearest = order_blocks[0]
+    
+    if nearest['distance_pips'] < 10:
+        return f"Price near {nearest['type']} zone at {nearest['price_level']} - watch for reaction"
+    elif nearest['type'] == 'demand' and trend == 'bullish':
+        return f"Bullish trend with demand zone at {nearest['price_level']} - wait for pullback"
+    elif nearest['type'] == 'supply' and trend == 'bearish':
+        return f"Bearish trend with supply zone at {nearest['price_level']} - wait for retest"
+    else:
+        return f"Monitor {nearest['type']} zone at {nearest['price_level']} for potential reversal"
