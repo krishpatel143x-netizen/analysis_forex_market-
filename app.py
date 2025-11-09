@@ -39,8 +39,8 @@ from utils.smc_functions import (
     analyze_session_characteristics, detect_news_impact_zones,
     # Advanced
     identify_manipulation_patterns, calculate_institutional_levels,
-    detect_wyckoff_phases, identify_turtle_soup_setups
-    )
+    detect_wyckoff_phases, identify_turtle_soup_setups )
+    
 
 # Page configuration
 st.set_page_config(
