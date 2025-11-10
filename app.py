@@ -14,7 +14,7 @@ using Smart Money Concepts (SMC) methodology.
 
 import streamlit as st
 import json
-from Groq import groq
+from groq import Groq
 
 # Page configuration
 st.set_page_config(
