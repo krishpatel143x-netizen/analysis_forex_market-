@@ -4,19 +4,18 @@
 # Core Framework
 streamlit==1.37.1
 
-# Groq AI API (FIXED VERSION)
+# Groq AI API
 groq>=0.11.0
 
-# Standard Libraries (included with Python but listed for clarity)
-# datetime - built-in
-# json - built-in
-# random - built-in
+# Polygon.io API (REAL DATA)
+polygon-api-client==1.14.1
 
-# Optional: For future real API integration
-# polygon-api-client==1.12.0  # Uncomment when ready to use real Polygon.io data
-# python-dotenv==1.0.0        # For environment variable management
-# pandas==2.1.4               # For advanced data manipulation
-# numpy==1.26.3               # For numerical computations
+# Data Processing
+pandas==2.1.4
+numpy==1.26.3
+
+# Optional
+python-dotenv==1.0.0
 
 # Installation Instructions:
 # 1. Create virtual environment: python -m venv venv
