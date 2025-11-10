@@ -54,12 +54,6 @@ from utils.smc_functions import (
     detect_wyckoff_phases, identify_turtle_soup_setups
 )
 
-# Page configuration
-st.set_page_config(
-    page_title="Forex Market Analyzer",
-    page_icon="📈",
-    layout="wide"
-)
 
 # Initialize Groq client
 @st.cache_resource
