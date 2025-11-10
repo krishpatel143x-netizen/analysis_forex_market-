@@ -525,4 +525,4 @@ FUNCTION_SCHEMAS = [
             "description": "Detects Wyckoff market phases - accumulation, markup, distribution, markdown patterns.",
             "parameters": {
                 "type": "object",
-                "properti
+                "properti"
