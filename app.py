@@ -16,6 +16,13 @@ import streamlit as st
 import json
 from groq import Groq
 
+# Page configuration
+st.set_page_config(
+    page_title="Forex Market Analyzer",
+    page_icon="📈",
+    layout="wide"
+)
+
 # Import real Polygon API (with fallback to mock)
 try:
     from utils.polygon_api import get_forex_data
